@@ -15,6 +15,17 @@ func (as *ActionSuite) Test_TasksIndex_EmptyState() {
 	as.Contains(res.Body.String(), "No hay tareas todavía")
 }
 
+func (as *ActionSuite) Test_Layout_ThemeToggle() {
+	res := as.HTML("/").Get()
+	as.Equal(200, res.Code)
+	body := res.Body.String()
+	as.Contains(body, `data-theme-toggle`)
+	as.Contains(body, `localStorage.getItem("theme")`)
+	as.Contains(body, `prefers-color-scheme: dark`)
+	// El script de tema va antes de la hoja de estilos para evitar el parpadeo.
+	as.Less(strings.Index(body, `localStorage.getItem("theme")`), strings.Index(body, `/assets/app.css`))
+}
+
 func (as *ActionSuite) Test_TasksIndex_ListsTasks() {
 	as.LoadFixture("tres tareas")
 
