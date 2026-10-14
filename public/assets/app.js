@@ -58,3 +58,43 @@ document.addEventListener("submit", function (event) {
     button.disabled = false;
   });
 });
+
+// Tema claro/oscuro: data-theme en <html> lo fija el script del <head>.
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  var button = document.querySelector("[data-theme-toggle]");
+  if (button) {
+    button.setAttribute("aria-pressed", String(theme === "dark"));
+  }
+}
+
+function storedTheme() {
+  try {
+    return localStorage.getItem("theme");
+  } catch (e) {
+    return null;
+  }
+}
+
+applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light");
+
+document.addEventListener("click", function (event) {
+  if (!event.target.closest("[data-theme-toggle]")) {
+    return;
+  }
+
+  var theme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  applyTheme(theme);
+  try {
+    localStorage.setItem("theme", theme);
+  } catch (e) {}
+});
+
+// Sin elección guardada, el tema sigue los cambios de preferencia del sistema.
+var systemDark = window.matchMedia("(prefers-color-scheme: dark)");
+systemDark.addEventListener("change", function (event) {
+  var stored = storedTheme();
+  if (stored !== "light" && stored !== "dark") {
+    applyTheme(event.matches ? "dark" : "light");
+  }
+});
